@@ -1,7 +1,9 @@
 {
   "dependencies": {
+    "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "inngest": "^4.5.0",
     "interviewhub": "file:..",
     "mongoose": "^8.19.1"
   },

@@ -3,10 +3,18 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import {connectDB} from './lib/db.js';
+import cors from 'cors';
+import {serve} from 'inngest/express';
 
 import {ENV} from './lib/env.js';  
 
 dotenv.config();
+
+app.use(express.json());
+
+app.use(cors({origin:ENV.CLIENT_URL, credentials:true}));
+
+app.use("api/inngest", serve({clients:inngest, functions})); 
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
