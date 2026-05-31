@@ -4,23 +4,27 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import {connectDB} from './lib/db.js';
 import cors from 'cors';
+import {inngest, functions} from './lib/inngest.js';
 import {serve} from 'inngest/express';
+
 
 import {ENV} from './lib/env.js';  
 
 dotenv.config();
 
+const app = express();
+
 app.use(express.json());
 
-app.use(cors({origin:ENV.CLIENT_URL, credentials:true}));
+app.use(cors({ origin: ENV.CLIENT_URL, credentials: true }));
 
-app.use("api/inngest", serve({clients:inngest, functions})); 
+app.use("/api/inngest", serve({ client: inngest, functions }));
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 console.log(ENV.PORT);
 
-const app = express();
+
 
 app.get('/health', (req, res) => {
   res.status(200).json({ message: 'Hello from the backend!' });
