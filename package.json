@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/GoyalParas/InterviewHub/issues"
   },
-  "homepage": "https://github.com/GoyalParas/InterviewHub#readme"
+  "homepage": "https://github.com/GoyalParas/InterviewHub#readme",
+  "engines": {
+    "node": ">=22.0.0"
+  }
 }
