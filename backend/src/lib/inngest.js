@@ -5,29 +5,53 @@ import {User} from '../models/User.js';
 export const inngest = new Inngest({ id: "InterviewHub" });
 
 const syncUser = inngest.createFunction(
-    { id: "sync-user", triggers: { event: "clerk.user.created" } },
+    {
+        id: "sync-user",
+        triggers: [
+            { event: "user.created" },
+            { event: "clerk/user.created" },
+            { event: "clerk.user.created" },
+        ],
+    },
     async ({ event }) => {
+        console.log('Inngest sync-user triggered:', event.name);
         await connectDB();
 
         const { id, email_addresses, first_name, last_name, image_url } = event.data;
+        const email = email_addresses?.[0]?.email_address;
+
+        if (!email) {
+            throw new Error('Clerk user.created event payload missing email address');
+        }
+
         const newUser = {
             clerkId: id,
-            email: email_addresses[0]?.email_address,
-            name: `${first_name || ""} ${last_name || ""}`,
+            email,
+            name: `${first_name || ""} ${last_name || ""}`.trim(),
             profileImage: image_url,
         };
 
-        await User.create(newUser);
+        const created = await User.create(newUser);
+        console.log('Created MongoDB user for Clerk ID:', created.clerkId);
     }
 );
 
 const deleteUserFromDB = inngest.createFunction(
-    { id: "delete-user-from-db", triggers: { event: "clerk/user.deleted" } },
+    {
+        id: "delete-user-from-db",
+        triggers: [
+            { event: "user.deleted" },
+            { event: "clerk/user.deleted" },
+            { event: "clerk.user.deleted" },
+        ],
+    },
     async ({ event }) => {
+        console.log('Inngest delete-user-from-db triggered:', event.name);
         await connectDB();
 
         const { id } = event.data;
-        await User.deleteOne({ clerkId: id });
+        const result = await User.deleteOne({ clerkId: id });
+        console.log('Deleted MongoDB user count:', result.deletedCount);
     }
 );
 
