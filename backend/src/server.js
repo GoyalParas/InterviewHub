@@ -45,9 +45,16 @@ const startServer = async () => {
     app.listen(ENV.PORT, () => {
       console.log(`Server is running on port ${ENV.PORT}`);
     });
-  } catch (error) {   
+  } catch (error) {
     console.error('Failed to connect to MongoDB', error);
   }
 };
 
-startServer();
+// When running on Vercel (serverless) we should NOT start a long-lived
+// listener. Export the `app` so serverless handlers can call it. Locally
+// (e.g. `npm run dev`) we still want to start the server.
+if (!process.env.VERCEL) {
+  startServer();
+}
+
+export default app;
