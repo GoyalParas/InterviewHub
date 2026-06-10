@@ -2,6 +2,9 @@ import { Inngest } from "inngest";
 import {connectDB} from './db.js';
 import {User} from '../models/User.js';
 
+import {upsertStreamUser, deleteStreamUser} from './stream.js';
+
+
 export const inngest = new Inngest({ id: "InterviewHub" });
 
 const syncUser = inngest.createFunction(
@@ -33,6 +36,13 @@ const syncUser = inngest.createFunction(
 
         const created = await User.create(newUser);
         console.log('Created MongoDB user for Clerk ID:', created.clerkId);
+
+
+        await upsertStreamUser({
+            id: newUser.clerkId.toString(),
+            name: newUser.name,
+            image: newUser.profileImage,
+        });
     }
 );
 
@@ -51,6 +61,8 @@ const deleteUserFromDB = inngest.createFunction(
 
         const { id } = event.data;
         const result = await User.deleteOne({ clerkId: id });
+
+        await deleteStreamUser(id.toString());
         console.log('Deleted MongoDB user count:', result.deletedCount);
     }
 );
